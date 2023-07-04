@@ -7,8 +7,7 @@ import edu.pucmm.eict.ormjpa.servicios.EstudianteServices;
 import edu.pucmm.eict.ormjpa.servicios.FotoServices;
 import edu.pucmm.eict.ormjpa.servicios.ProfesorServices;
 import io.javalin.Javalin;
-import io.javalin.core.util.FileUtil;
-import io.javalin.http.NotFoundResponse;
+
 
 import java.io.IOException;
 import java.util.Base64;
@@ -32,6 +31,10 @@ public class FotoControlador {
         app.routes(() -> {
             path("/fotos", () -> {
 
+                get("/", ctx -> {
+                    ctx.redirect("/fotos/listar");
+                });
+
                 get("/listar", ctx -> {
                     List<Foto> fotos = fotoServices.findAll();
 
@@ -46,9 +49,9 @@ public class FotoControlador {
                 post("/procesarFoto", ctx -> {
                     ctx.uploadedFiles("foto").forEach(uploadedFile -> {
                         try {
-                            byte[] bytes = uploadedFile.getContent().readAllBytes();
+                            byte[] bytes = uploadedFile.content().readAllBytes();
                             String encodedString = Base64.getEncoder().encodeToString(bytes);
-                            Foto foto = new Foto(uploadedFile.getFilename(), uploadedFile.getContentType(), encodedString);
+                            Foto foto = new Foto(uploadedFile.filename(), uploadedFile.contentType(), encodedString);
                             fotoServices.crear(foto);
                         } catch (IOException e) {
                             e.printStackTrace();
